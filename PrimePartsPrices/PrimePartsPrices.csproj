@@ -1,13 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="15.0.1" />
+    <PackageReference Include="GameOverlay.Net" Version="4.0.8" />
     <PackageReference Include="KeystrokeAPI" Version="1.0.6.4" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
   </ItemGroup>

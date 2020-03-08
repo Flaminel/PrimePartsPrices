@@ -17,6 +17,11 @@ namespace PrimePartsPrices.Pages
             driver.Url = DUCATS_PAGE_URL;
         }
 
+        /// <summary>
+        /// Gets the PrimePart entities from the ducanator page
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>A set of prime parts</returns>
         public IEnumerable<PrimePart> GetPrimePartsFromPage(CancellationTokenSource cancellationToken)
         {
             ReadOnlyCollection<IWebElement> elements;

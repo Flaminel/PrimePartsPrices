@@ -3,6 +3,7 @@ using Keystroke.API;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using PrimePartsPrices.Entities;
+using PrimePartsPrices.Overlay;
 using PrimePartsPrices.Pages;
 using PrimePartsPrices.Utils;
 using System;
@@ -22,14 +23,19 @@ namespace PrimePartsPrices
     {
         private const string WARFRAME_PROCESS_NAME = "Warframe";
         private const string NAME_OF_LISTINGS_PRICES_FILE = "prices.csv";
+        private const int NUMBER_OF_SECONDS_TO_DISPLAY_OVERLAY = 10;
         private static readonly KeystrokeAPI _keystrokeAPI = new KeystrokeAPI();
         private static readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
         private static bool _shouldGetPrices = false;
         private static bool _shouldGetPricesFromListings = false;
         private static IEnumerable<PrimePart> _primeParts;
+        private static WarframeOverlay _overlay;
 
+        [STAThread]
         public static void Main()
         {
+            _overlay = new WarframeOverlay(GetWaframeProcess());
+
             AttachTriggersToKeystrokes();
 
             ReadPrimePartsFromCSV();
@@ -156,12 +162,27 @@ namespace PrimePartsPrices
                     return;
                 }
 
-                Process warframeProcess = GetWaframeProcess();
+                IEnumerable<PrimePart> foundPrimeParts = null; // TODO OCR here
+
+                ShowOverlay(foundPrimeParts);
             }
             catch
             {
                 // TODO log
             }
+        }
+
+        /// <summary>
+        /// Runs the overlay which displays the found parts
+        /// </summary>
+        /// <param name="primeParts">The parts which were found by the OCR soft</param>
+        private static void ShowOverlay(IEnumerable<PrimePart> primeParts)
+        {
+            _overlay.Run(primeParts);
+
+            Thread.Sleep(NUMBER_OF_SECONDS_TO_DISPLAY_OVERLAY * 1000);
+
+            _overlay.Stop();
         }
 
         /// <summary>
@@ -238,7 +259,7 @@ namespace PrimePartsPrices
         private static Process GetWaframeProcess()
         {
             Process warframeProcess = Process.GetProcesses()
-                .First(process => process.ProcessName == WARFRAME_PROCESS_NAME && !process.HasExited);
+                .First(process => process.ProcessName.Contains(WARFRAME_PROCESS_NAME) && !process.HasExited);
 
             if (warframeProcess != null)
             {

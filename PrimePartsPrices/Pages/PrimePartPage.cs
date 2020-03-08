@@ -54,6 +54,9 @@ namespace PrimePartsPrices.Pages
             }
         }
 
+        /// <summary>
+        /// Removes useless page headers to increase listings visibility
+        /// </summary>
         private void RemoveUselessPageHeaders()
         {
             IJavaScriptExecutor scriptExecutor = (IJavaScriptExecutor)_driver;

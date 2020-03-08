@@ -19,6 +19,11 @@ namespace PrimePartsPrices.Entities
 
         public int PriceInPlat { get; set; }
 
+        public override string ToString()
+        {
+            return $"{Name} [{PriceInPlat} PLATINUM] [{PriceInDucats} DUCATS] [{DucatsPerPlatRation} DUCATS/PLAT] [Average plat price: {AveragePlatPrice}]";
+        }
+
         public static PrimePart Parse(IWebElement element)
         {
             IWebElement foundElement;
