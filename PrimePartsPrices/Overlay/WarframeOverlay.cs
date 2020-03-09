@@ -1,10 +1,9 @@
 ﻿using GameOverlay.Drawing;
 using GameOverlay.Windows;
 using PrimePartsPrices.Entities;
-using System;
+using PrimePartsPrices.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace PrimePartsPrices.Overlay
 {
@@ -81,7 +80,7 @@ namespace PrimePartsPrices.Overlay
 
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
-            GetWindowThreadProcessId(GetForegroundWindow(), out int activeProcId);
+            ProcessWindowHelper.GetWindowThreadProcessId(ProcessWindowHelper.GetForegroundWindow(), out int activeProcId);
 
             float xIndex = 10, yIndex = 10;
 
@@ -108,21 +107,9 @@ namespace PrimePartsPrices.Overlay
             e.Graphics.EndScene();
             _font.Dispose();
             _redBrush.Dispose();
+            _grayBrush.Dispose();
+            _yellowBrush.Dispose();
+            _whiteBrush.Dispose();
         }
-
-        /// Gets the window handle of the process which is in the foreground
-        /// </summary>
-        /// <returns>Returns the window handle</returns>
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        private static extern IntPtr GetForegroundWindow();
-
-        /// <summary>
-        /// Gets the id of the process of the provided handle
-        /// </summary>
-        /// <param name="handle">The process handle</param>
-        /// <param name="processId">The process id</param>
-        /// <returns>Returns the process id</returns>
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
     }
 }

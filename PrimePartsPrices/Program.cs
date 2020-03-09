@@ -9,6 +9,8 @@ using PrimePartsPrices.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,6 +18,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static PrimePartsPrices.Utils.ProcessWindowHelper;
 
 namespace PrimePartsPrices
 {
@@ -30,17 +33,41 @@ namespace PrimePartsPrices
         private static bool _shouldGetPricesFromListings = false;
         private static IEnumerable<PrimePart> _primeParts;
         private static WarframeOverlay _overlay;
+        private static Process _process;
 
         [STAThread]
         public static void Main()
         {
-            _overlay = new WarframeOverlay(GetWaframeProcess());
+            try
+            {
+                _process = GetWaframeProcess();
+                _overlay = new WarframeOverlay(_process);
 
-            AttachTriggersToKeystrokes();
+                ShowMenuMessage();
 
-            ReadPrimePartsFromCSV();
+                AttachTriggersToKeystrokes();
 
-            WaitForInput();
+                ReadPrimePartsFromCSV();
+
+                WaitForInput();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                Console.ReadLine();
+            }
+        }
+
+        /// <summary>
+        /// Shows a basic menu stating run options
+        /// </summary>
+        public static void ShowMenuMessage()
+        {
+            Console.WriteLine("##############################################################################");
+            Console.WriteLine($"Press {((KeyCode)Settings.GetPricesKeyCode)} to get prices from your mission");
+            Console.WriteLine($"Press {((KeyCode)Settings.GetPricesFromListingsKeyCode)} to create or update the file with prices for all prime parts (this may take a while)");
+            Console.WriteLine($"Press {((KeyCode)Settings.StopKeyCode)} to stop the program");
+            Console.WriteLine("##############################################################################");
         }
 
         /// <summary>
@@ -62,7 +89,7 @@ namespace PrimePartsPrices
                     _shouldGetPricesFromListings = false;
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
@@ -143,9 +170,9 @@ namespace PrimePartsPrices
 
                 WritePrimePartsToCSV();
             }
-            catch
+            catch (Exception exception)
             {
-                // TODO
+                Console.WriteLine(exception.Message);
             }
         }
 
@@ -158,17 +185,23 @@ namespace PrimePartsPrices
             {
                 if (_primeParts == null || !_primeParts.Any())
                 {
-                    // TODO log info
-                    return;
+                    throw new Exception("There is no file containing prime parts prices. Please get the prices from listings first");
                 }
 
-                IEnumerable<PrimePart> foundPrimeParts = null; // TODO OCR here
+                if (SetForegroundWindow(_process.MainWindowHandle) && GetWindowRect(_process.MainWindowHandle, out RECT location))
+                {
+                    IEnumerable<PrimePart> foundPrimeParts = new List<PrimePart>(); // TODO OCR here
 
-                ShowOverlay(foundPrimeParts);
+                    ShowOverlay(foundPrimeParts);
+                }
+                else
+                {
+                    throw new Exception("Can't bring Warframe's window in the foreground");
+                }
             }
-            catch
+            catch (Exception exception)
             {
-                // TODO log
+                Console.WriteLine(exception.Message);
             }
         }
 
@@ -259,14 +292,14 @@ namespace PrimePartsPrices
         private static Process GetWaframeProcess()
         {
             Process warframeProcess = Process.GetProcesses()
-                .First(process => process.ProcessName.Contains(WARFRAME_PROCESS_NAME) && !process.HasExited);
+                .FirstOrDefault(process => process.ProcessName.Contains(WARFRAME_PROCESS_NAME) && !process.HasExited);
 
             if (warframeProcess != null)
             {
                 return warframeProcess;
             }
 
-            throw new Exception("Warframe process not found");
+            throw new Exception("Warframe process not found. Please start Warframe and restart the program!");
         }
     }
 }

@@ -2,10 +2,10 @@
 {
     public static class Settings
     {
-        public static int GetPricesKeyCode => 33; // PAGE UP
+        public static int GetPricesKeyCode => 97;
 
-        public static int GetPricesFromListingsKeyCode => 34; // PAGE DOWN
+        public static int GetPricesFromListingsKeyCode => 98;
 
-        public static int StopKeyCode => 35; // END
+        public static int StopKeyCode => 99;
     }
 }
