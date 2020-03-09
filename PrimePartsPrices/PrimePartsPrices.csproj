@@ -13,7 +13,7 @@
     <PackageReference Include="GameOverlay.Net" Version="4.0.8" />
     <PackageReference Include="KeystrokeAPI" Version="1.0.6.4" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
-    <PackageReference Include="Tesseract" Version="3.3.0" />
+    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>
 
   <ItemGroup>

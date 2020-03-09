@@ -23,23 +23,23 @@ namespace PrimePartsPrices.Utils
         /// </summary>
         /// <param name="handle">The handle to the window. (In windows forms, this is obtained by the Handle property)</param>
         /// <returns></returns>
-        public static Image CaptureWindow(IntPtr handle)
+        public static Image CaptureWindow(IntPtr handle, int customXStart = 0, int customYStart = 0, int customWidth = 0, int customHeight = 0)
         {
             // get te hDC of the target window
             IntPtr hdcSrc = ProcessWindowHelper.GetWindowDC(handle);
             // get the size
             ProcessWindowHelper.GetWindowRect(handle, out ProcessWindowHelper.RECT windowRect);
-            int width = windowRect.Right - windowRect.Left;
-            int height = windowRect.Bottom - windowRect.Top;
+            int width = customWidth > 0 ? customWidth : windowRect.Right - windowRect.Left;
+            int height = customHeight > 0 ? customHeight : windowRect.Bottom - windowRect.Top;
             // create a device context we can copy to
             IntPtr hdcDest = GDI32.CreateCompatibleDC(hdcSrc);
             // create a bitmap we can copy it to,
-            // using GetDeviceCaps to get the width/height
+            // using GetDeviceCaps t1o get the width/height
             IntPtr hBitmap = GDI32.CreateCompatibleBitmap(hdcSrc, width, height);
             // select the bitmap object
             IntPtr hOld = GDI32.SelectObject(hdcDest, hBitmap);
             // bitblt over
-            GDI32.BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, GDI32.SRCCOPY);
+            GDI32.BitBlt(hdcDest, 0, 0, width, height, hdcSrc, customXStart, customYStart, GDI32.SRCCOPY);
             // restore selection
             GDI32.SelectObject(hdcDest, hOld);
             // clean up
@@ -57,9 +57,9 @@ namespace PrimePartsPrices.Utils
         /// <param name="handle">The process window handle</param>
         /// <param name="filename">The full file path, including the name and extension</param>
         /// <param name="format">The image format</param>
-        public static void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format)
+        public static void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format, int customXStart = 0, int customYStart = 0, int customWidth = 0, int customHeight = 0)
         {
-            Image img = CaptureWindow(handle);
+            Image img = CaptureWindow(handle, customXStart, customYStart, customWidth, customHeight);
             img.Save(filename, format);
         }
         /// <summary>

@@ -9,8 +9,6 @@ using PrimePartsPrices.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,6 +16,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Tesseract;
 using static PrimePartsPrices.Utils.ProcessWindowHelper;
 
 namespace PrimePartsPrices
@@ -27,22 +26,30 @@ namespace PrimePartsPrices
         private const string WARFRAME_PROCESS_NAME = "Warframe";
         private const string NAME_OF_LISTINGS_PRICES_FILE = "prices.csv";
         private const int NUMBER_OF_SECONDS_TO_DISPLAY_OVERLAY = 10;
-        private static readonly KeystrokeAPI _keystrokeAPI = new KeystrokeAPI();
-        private static readonly CancellationTokenSource _cancellationToken = new CancellationTokenSource();
+
+        private static readonly KeystrokeAPI _keystrokeAPI;
+        private static readonly CancellationTokenSource _cancellationToken;
         private static bool _shouldGetPrices = false;
         private static bool _shouldGetPricesFromListings = false;
         private static IEnumerable<PrimePart> _primeParts;
-        private static WarframeOverlay _overlay;
-        private static Process _process;
+        private static readonly WarframeOverlay _overlay;
+        private static readonly Process _process;
+        private static readonly TesseractEngine _ocrEngine;
+
+        static Program()
+        {
+            _keystrokeAPI = new KeystrokeAPI();
+            _cancellationToken = new CancellationTokenSource();
+            _ocrEngine = new TesseractEngine(Path.Combine(GetAssemblyPath(), "tessdata"), "eng", EngineMode.Default);
+            _process = GetWaframeProcess();
+            _overlay = new WarframeOverlay(_process);
+        }
 
         [STAThread]
         public static void Main()
         {
             try
             {
-                _process = GetWaframeProcess();
-                _overlay = new WarframeOverlay(_process);
-
                 ShowMenuMessage();
 
                 AttachTriggersToKeystrokes();
@@ -190,7 +197,16 @@ namespace PrimePartsPrices
 
                 if (SetForegroundWindow(_process.MainWindowHandle) && GetWindowRect(_process.MainWindowHandle, out RECT location))
                 {
-                    IEnumerable<PrimePart> foundPrimeParts = new List<PrimePart>(); // TODO OCR here
+                    string imagePath = Path.Combine(GetAssemblyPath(), "Images", $"{new Guid().ToString()}.jpg");
+
+                    // TODO maybe find a formula or something to get that area for other resolutions than 1080p
+                    ScreenCapture.CaptureWindowToFile(_process.MainWindowHandle, imagePath, System.Drawing.Imaging.ImageFormat.Jpeg, 50, 410, 1800, 100);
+
+                    string textFromImage = GetTextFromImage(_ocrEngine, imagePath);
+
+                    // TODO text processing here
+
+                    IEnumerable<PrimePart> foundPrimeParts = new List<PrimePart>();
 
                     ShowOverlay(foundPrimeParts);
                 }
@@ -294,12 +310,26 @@ namespace PrimePartsPrices
             Process warframeProcess = Process.GetProcesses()
                 .FirstOrDefault(process => process.ProcessName.Contains(WARFRAME_PROCESS_NAME) && !process.HasExited);
 
-            if (warframeProcess != null)
+            if (warframeProcess != null && warframeProcess.MainWindowHandle != IntPtr.Zero)
             {
                 return warframeProcess;
             }
 
             throw new Exception("Warframe process not found. Please start Warframe and restart the program!");
+        }
+
+        /// <summary>
+        /// Gets the text from an image using Tesseract
+        /// </summary>
+        /// <param name="engine">The resseract engine</param>
+        /// <param name="imagePath">The path to the image</param>
+        /// <returns></returns>
+        public static string GetTextFromImage(TesseractEngine engine, string imagePath)
+        {
+            using Pix img = Pix.LoadFromFile(imagePath);
+            using Page page = engine.Process(img);
+
+            return page.GetText();
         }
     }
 }
