@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using PrimePartsPrices.Abstracts;
 using PrimePartsPrices.Entities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -35,6 +36,10 @@ namespace PrimePartsPrices.Pages
                 {
                     return null;
                 }
+                else
+                {
+                    Console.WriteLine("Getting prime parts prices from warframe.market listings. Please wait...");
+                }
 
                 elements = GetElements(".row.ducats");
                 hasAnyElementBeenAdded = false;
@@ -58,7 +63,7 @@ namespace PrimePartsPrices.Pages
                 {
                     IJavaScriptExecutor scriptExecutor = (IJavaScriptExecutor)_driver;
                     scriptExecutor.ExecuteScript("window.scrollBy(0,400)");
-                    Thread.Sleep(1 * 200);
+                    Thread.Sleep(200);
                 }
             }
 

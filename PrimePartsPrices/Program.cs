@@ -194,8 +194,6 @@ namespace PrimePartsPrices
         /// </summary>
         private static void GetPricesFromListings()
         {
-            // TODO making a service which runs once, daily, and making the file available online would be better for users
-
             using IWebDriver driver = CreateWebDriver();
 
             try
