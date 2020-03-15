@@ -5,6 +5,7 @@ Just start the app, press the designated key for the number of items shown at th
 
 # To be noted
 This project does not modify or in any way tamper with the Warframe game, process, memory and so on.
+The app only takes a screenshot and searches for the names of the parts in the image.
 
 ## Prerequisites
 
