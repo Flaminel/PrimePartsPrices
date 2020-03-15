@@ -5,13 +5,22 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon />
-    <StartupObject />
+    <StartupObject>PrimePartsPrices.Program</StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="15.0.1" />
     <PackageReference Include="GameOverlay.Net" Version="4.0.8" />
     <PackageReference Include="KeystrokeAPI" Version="1.0.6.4" />
+    <PackageReference Include="OpenCvSharp4.Windows" Version="4.2.0.20200208" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>

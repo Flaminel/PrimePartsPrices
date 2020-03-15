@@ -1,9 +1,11 @@
 ﻿using OpenQA.Selenium;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PrimePartsPrices.Entities
 {
-    public class PrimePart
+    public class PrimePart : IEqualityComparer<PrimePart>
     {
         private const string _nameSelector = ".ducats__item-name";
         public string Name { get; set; }
@@ -91,6 +93,33 @@ namespace PrimePartsPrices.Entities
             }
 
             return primePart;
+        }
+
+        public bool Equals([AllowNull] PrimePart x, [AllowNull] PrimePart y)
+        {
+            if (x == null && y == null)
+            {
+                return true;
+            }
+
+            if (x == null || y == null)
+            {
+                return false;
+            }
+
+            if (x.Name == y.Name)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public int GetHashCode([DisallowNull] PrimePart obj)
+        {
+            string hashCode = $"{obj.Name}{obj.PriceInDucats}";
+
+            return hashCode.GetHashCode();
         }
     }
 

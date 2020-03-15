@@ -4,6 +4,7 @@ using PrimePartsPrices.Entities;
 using PrimePartsPrices.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace PrimePartsPrices.Overlay
 {
@@ -46,9 +47,9 @@ namespace PrimePartsPrices.Overlay
                 Height = 600
             };
 
-            _window.SetupGraphics += _window_SetupGraphics;
-            _window.DestroyGraphics += _window_DestroyGraphics;
-            _window.DrawGraphics += _window_DrawGraphics;
+            _window.SetupGraphics += Window_SetupGraphics;
+            _window.DestroyGraphics += Window_DestroyGraphics;
+            _window.DrawGraphics += Window_DrawGraphics;
         }
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace PrimePartsPrices.Overlay
             _window.StopThreadAsync();
         }
 
-        private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e)
+        private void Window_SetupGraphics(object sender, SetupGraphicsEventArgs e)
         {
             _font = e.Graphics.CreateFont("Arial", 16);
 
@@ -78,7 +79,7 @@ namespace PrimePartsPrices.Overlay
             _whiteBrush = e.Graphics.CreateSolidBrush(255, 255, 255);
         }
 
-        private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
+        private void Window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
             ProcessWindowHelper.GetWindowThreadProcessId(ProcessWindowHelper.GetForegroundWindow(), out int activeProcId);
 
@@ -86,9 +87,14 @@ namespace PrimePartsPrices.Overlay
 
             if (activeProcId == _process.Id)
             {
+                if (!_primeParts.Any())
+                {
+                    e.Graphics.DrawTextWithBackground(_font, _whiteBrush, _grayBrush, xIndex, yIndex, "No parts found");
+                }
+
                 foreach (PrimePart primePart in _primeParts)
                 {
-                    e.Graphics.DrawText(_font, _whiteBrush, xIndex, yIndex, primePart.ToString());
+                    e.Graphics.DrawTextWithBackground(_font, _whiteBrush, _grayBrush, xIndex, yIndex, primePart.ToString());
 
                     yIndex += _font.FontSize + 5;
                 }
@@ -99,7 +105,7 @@ namespace PrimePartsPrices.Overlay
             }
         }
 
-        private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
+        private void Window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {
             // you may want to dispose any brushes, fonts or images
             e.Graphics.BeginScene();
